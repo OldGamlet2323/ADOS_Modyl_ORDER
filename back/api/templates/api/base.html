@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Django Admin</title>
+    <style>
+        body { font-family: sans-serif; }
+        .container { max-width: 960px; margin: 0 auto; padding-top: 20px; }
+        .content-wrapper { display: flex; }
+
+        .sidebar {
+            width: 200px;
+            border: 2px solid black;
+            padding: 10px;
+            margin-right: 20px;
+            height: fit-content;
+        }
+        .sidebar ul { list-style-type: none; padding: 0; }
+        .sidebar li { margin-bottom: 10px; }
+
+        .sidebar-link, .sub-content-link {
+            cursor: pointer;
+            text-decoration: underline;
+            color: blue;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            border: 2px solid black;
+            padding: 20px;
+            min-height: 300px;
+        }
+
+        .tab-buttons {
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 10px;
+}
+.tab-button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    background-color: #f1f1f1;
+    border-bottom: 2px solid transparent;
+}
+.tab-button.active {
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-bottom: 2px solid #fff; /* "Вирізає" нижню межу */
+    position: relative;
+    top: 2px;
+}
+.tab-pane {
+    display: none; /* Всі панелі сховані */
+}
+.tab-pane.active {
+    display: block; /* Активна панель видима */
+}
+
+/* Класи для приховування основних блоків */
+.content-block, .sub-content-block {
+    display: none;
+}
+    </style>
+</head>
+<body>
+<div class="container">
+        <h1>Django Admin</h1>
+        <div class="content-wrapper">
+
+            <!-- БІЧНЕ МЕНЮ -->
+            <aside class="sidebar">
+                <ul>
+                    <li><a class="sidebar-link" data-target="#content-chi-options">Приміщення ЧІ</a></li>
+                    <li><a class="sidebar-link" data-target="#content-park-duty">Черговий парку</a></li>
+                    <li><a class="sidebar-link" data-target="#content-canteen">Їдальня</a></li>
+                </ul>
+            </aside>
+<main class="main-content">
+    <div id="content-chi-options" class="content-block">
+        <div class="tab-buttons">
+            <button class="tab-button" data-target="#tab-content-1">Черговий Інститут</button>
+            <button class="tab-button" data-target="#tab-content-2">Помічник ЧІ</button>
+            <button class="tab-button" data-target="#tab-content-3">Помічник ЧІ з БП</button>
+        </div>
+        </div>
+
+        <!-- Контент для кожної вкладки -->
+        <div class="tab-content-panes">
+            <div id="tab-content-1" class="tab-pane">
+                <h4>Черговий Інститут</h4>
+                <a class="sub-content-link" data-target="#duty-officer-form">Додати рядок</a>
+            </div>
+            <div id="tab-content-2" class="tab-pane">
+                <h4>Помічник ЧІ</h4>
+                 <a class="sub-content-link" data-target="#duty-officer-form">Додати рядок</a>
+            </div>
+            <div id="tab-content-3" class="tab-pane">
+                <h4>Помічник ЧІ з БП</h4>
+                <a class="sub-content-link" data-target="#duty-officer-form">Додати рядок</a>
+            </div>
+        </div>
+
+
+    <!--
+      БЛОК ДРУГОГО РІВНЯ (форма "Додати рядок").
+      Він, як і раніше, прихований і викликається за потреби.
+    -->
+    <div id="duty-officer-form" class="sub-content-block">
+        <h3>Бланка для заповнення інформації</h3>
+        <form>
+            {{ form.as_p}}
+        </form>
+    </div>
+    <div id="content-park-duty" class="content-block2">
+         <h3>Бланка для заповнення інформації</h3>
+        <form>
+            {{ form.as_p}}
+        </form>
+    </div>
+</main>
+    <!-- JAVASCRIPT ЛОГІКА -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Логіка для бічного меню (залишається як є) ---
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    const contentBlocks = document.querySelectorAll('.content-block');
+    const subContentLinks = document.querySelectorAll('.sub-content-link');
+    const subContentBlocks = document.querySelectorAll('.sub-content-block');
+
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const targetId = this.getAttribute('data-target');
+
+            contentBlocks.forEach(block => block.style.display = 'none');
+            subContentBlocks.forEach(block => block.style.display = 'none');
+
+            const targetContent = document.querySelector(targetId);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+        });
+    });
+
+    subContentLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const targetId = this.getAttribute('data-target');
+
+            subContentBlocks.forEach(block => block.style.display = 'none'); // Можна прибрати, якщо хочете бачити кілька форм
+
+            const targetContent = document.querySelector(targetId);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+        });
+    });
+
+    // --- НОВА ЛОГІКА для вкладок (табів) ---
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+
+            // 1. Робимо всі кнопки неактивними
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            // 2. Робимо всі панелі невидимими
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // 3. Робимо активною натиснуту кнопку
+            this.classList.add('active');
+            // 4. Робимо видимою відповідну панель
+            document.querySelector(targetId).classList.add('active');
+        });
+    });
+});
+</script>
+</body>
+</html>
